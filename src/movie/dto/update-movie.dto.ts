@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsOptional, registerDecorator, Validate, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
+import {
+  IsNotEmpty,
+  IsOptional,
+  registerDecorator,
+  Validate,
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 // class-validator : 검증
 
@@ -27,17 +36,16 @@ import { IsNotEmpty, IsOptional, registerDecorator, Validate, ValidationArgument
 //     }
 // }
 
+export class UpdateMovieDto {
+  @IsNotEmpty()
+  @IsOptional()
+  title?: string;
 
-export class UpdateMovieDto { 
-    @IsNotEmpty()
-    @IsOptional()
-    title? : string;
-    
-    @IsNotEmpty()
-    @IsOptional()
-    genre? : string;
-    
-    // // Custom Validator 사용
-    // @IsPasswordValid() 
-    // test : string;
+  @IsNotEmpty()
+  @IsOptional()
+  genre?: string;
+
+  // // Custom Validator 사용
+  // @IsPasswordValid()
+  // test : string;
 }
