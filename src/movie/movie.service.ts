@@ -1,8 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 
 interface Movie { 
     id : number;
     title : string;
+    genre : string;
   }
 
 @Injectable()
@@ -11,11 +14,13 @@ export class MovieService {
   private movies : Movie[] = [
     {
       id : 1,
-      title : '해리포터'
+      title : '해리포터',
+      genre : 'fantasy',
     },
     {
       id : 2,
-      title : '반지의 제왕'
+      title : '반지의 제왕',
+      genre : 'action'
     }
   ]
 
@@ -38,26 +43,25 @@ export class MovieService {
     return movie;
   }
 
-  createMovie(title : string) : Movie[] {
+  createMovie(createMovieDto : CreateMovieDto) : Movie[] {
     const movie = {
         id: this.movies.length > 0 ? this.movies[this.movies.length - 1].id + 1 : 1,
-        title,
-    };
+        ...createMovieDto
+      };
 
     this.movies = [...this.movies , movie];
     
     return  this.movies;
   }
 
-  updateMovie(id:string,title : string) : Movie {
+  updateMovie(id:string,updateMovieDto : UpdateMovieDto) : Movie {
 
     const movie = this.getMovieById(id);
 
-    if(title) movie.title = title;
 
     // movie에 title을 덮어쓴다.
-    Object.assign(movie,{title});
-
+    Object.assign(movie,{...updateMovieDto});
+ 
     return movie;
   }
 

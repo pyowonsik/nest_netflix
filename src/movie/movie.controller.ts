@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query,  } from 
 import { MovieService } from './movie.service';
 import { time } from 'console';
 import { title } from 'process';
+import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 
 
 interface Movie { 
@@ -28,17 +30,17 @@ export class MovieController {
 
   @Post()
   postMoive(
-    @Body('title') title : string
+    @Body() body : CreateMovieDto
   ) : Movie[] {
-    return this.movieService.createMovie(title)
+    return this.movieService.createMovie(body)
   }
 
   @Put(':id')
   putMovie(
     @Param('id') id : string,
-    @Body('title') title : string
+    @Body() body : UpdateMovieDto
   ) : Movie{
-    return this.movieService.updateMovie(id,title);
+    return this.movieService.updateMovie(id,body);
   }
 
   @Delete(':id')
