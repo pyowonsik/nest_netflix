@@ -5,13 +5,15 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
-import { BaseTable } from './base-table.entity';
+import { BaseTable } from '../../common/entity/base-table.entity';
 import { MovieDetail } from './movie-detail.entity';
+import { Director } from 'src/director/entity/director.entity';
 
 // // @Exclude() : 조회시 해당 propeety 숨김
 // // @Expose() : 조회시 해당 property 노출
@@ -55,4 +57,7 @@ export class Movie extends BaseTable {
   })
   @JoinColumn()
   detail: MovieDetail;
+
+  @ManyToOne(() => Director, (director) => director.id)
+  director: Director;
 }
