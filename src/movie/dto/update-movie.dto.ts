@@ -45,6 +45,10 @@ export class UpdateMovieDto {
   @IsOptional()
   genre?: string;
 
+  @IsNotEmpty()
+  @IsOptional()
+  detail?: string;
+
   // // Custom Validator 사용
   // @IsPasswordValid()
   // test : string;

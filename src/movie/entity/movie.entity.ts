@@ -4,10 +4,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
+import { BaseTable } from './base-table.entity';
+import { MovieDetail } from './movie-detail.entity';
 
 // // @Exclude() : 조회시 해당 propeety 숨김
 // // @Expose() : 조회시 해당 property 노출
@@ -31,8 +35,12 @@ import {
 //   // }
 // }
 
+// One To One : Movie - MovieDetail
+// One To Many : Director - Moive
+// Many To Many : Movie - Genre
+
 @Entity()
-export class Movie {
+export class Movie extends BaseTable {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -42,12 +50,9 @@ export class Movie {
   @Column()
   genre: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @VersionColumn()
-  version: number;
+  @OneToOne(() => MovieDetail, (movieDetail) => movieDetail.id, {
+    cascade: true,
+  })
+  @JoinColumn()
+  detail: MovieDetail;
 }
