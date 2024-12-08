@@ -1,22 +1,53 @@
-import { Exclude, Expose, Transform } from 'class-transformer';
+// import { Exclude, Expose, Transform } from 'class-transformer';
 
-// @Exclude() : 조회시 해당 propeety 숨김
-// @Expose() : 조회시 해당 property 노출
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  VersionColumn,
+} from 'typeorm';
 
-// @Exclude()
+// // @Exclude() : 조회시 해당 propeety 숨김
+// // @Expose() : 조회시 해당 property 노출
+
+// // @Exclude()
+
+// export class Movie {
+//   // @Expose()
+//   id: number;
+//   // @Expose()
+//   title: string;
+
+//   //  @Expose()
+//   //  @Exclude()
+//   @Transform(({ value }) => value.toString().toUpperCase())
+//   genre: string;
+
+//   // @Expose()
+//   // get description(){
+//   //    return `id : ${this.id} , title : ${this.title}`;
+//   // }
+// }
+
+@Entity()
 export class Movie {
-  // @Expose()
+  @PrimaryGeneratedColumn()
   id: number;
-  // @Expose()
+
+  @Column()
   title: string;
 
-  //  @Expose()
-  //  @Exclude()
-  @Transform(({ value }) => value.toString().toUpperCase())
+  @Column()
   genre: string;
 
-  // @Expose()
-  // get description(){
-  //    return `id : ${this.id} , title : ${this.title}`;
-  // }
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @VersionColumn()
+  version: number;
 }

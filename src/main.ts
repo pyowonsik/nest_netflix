@@ -7,9 +7,9 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       // DTO 정의하지 않은 property를 숨김
-      whitelist: true,
+      // whitelist: true,
       // DTO 정의하지 않은 property일때, Error
-      forbidNonWhitelisted: true,
+      // forbidNonWhitelisted: true,
     }),
   );
   await app.listen(process.env.PORT ?? 3000);
