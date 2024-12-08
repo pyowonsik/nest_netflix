@@ -16,7 +16,7 @@ export class MovieService {
     private readonly movieDetailRepository: Repository<MovieDetail>,
   ) {}
 
-  async getMovies(title?: string) {
+  async findAll(title?: string) {
     if (!title) {
       return [
         await this.movieRepository.find(),
@@ -31,7 +31,7 @@ export class MovieService {
     });
   }
 
-  async getMovieById(id: number) {
+  async findOne(id: number) {
     const movie = await this.movieRepository.findOne({
       where: {
         id,
@@ -46,7 +46,7 @@ export class MovieService {
     return movie;
   }
 
-  async createMovie(createMovieDto: CreateMovieDto) {
+  async create(createMovieDto: CreateMovieDto) {
     // join 관계에서 데이터 한번에 넣기 -> cascade true
     // const movieDetail = await this.movieDetailRepository.save({
     //   detail: createMovieDto.detail,
@@ -63,7 +63,7 @@ export class MovieService {
     return movie;
   }
 
-  async updateMovie(id: number, updateMovieDto: UpdateMovieDto) {
+  async update(id: number, updateMovieDto: UpdateMovieDto) {
     const movie = await this.movieRepository.findOne({
       where: {
         id,
@@ -100,7 +100,7 @@ export class MovieService {
     return newMovie;
   }
 
-  async deleteMovie(id: number) {
+  async delete(id: number) {
     const movie = await this.movieRepository.findOne({
       where: {
         id,
