@@ -49,6 +49,10 @@ export class UpdateMovieDto {
   @IsOptional()
   detail?: string;
 
+  @IsNotEmpty()
+  @IsOptional()
+  directorId?: number;
+
   // // Custom Validator 사용
   // @IsPasswordValid()
   // test : string;
