@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -14,6 +16,7 @@ import {
 import { BaseTable } from '../../common/entity/base-table.entity';
 import { MovieDetail } from './movie-detail.entity';
 import { Director } from 'src/director/entity/director.entity';
+import { Genre } from 'src/genre/entities/genre.entity';
 
 // // @Exclude() : 조회시 해당 propeety 숨김
 // // @Expose() : 조회시 해당 property 노출
@@ -51,9 +54,6 @@ export class Movie extends BaseTable {
   })
   title: string;
 
-  @Column()
-  genre: string;
-
   @OneToOne(() => MovieDetail, (movieDetail) => movieDetail.id, {
     cascade: true,
     nullable: false, // null 금지
@@ -66,4 +66,8 @@ export class Movie extends BaseTable {
     nullable: false,
   })
   director: Director;
+
+  @ManyToMany(() => Genre, (genre) => genre.movies)
+  @JoinTable()
+  genres: Genre[];
 }
