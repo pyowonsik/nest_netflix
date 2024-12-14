@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   async register(rawToken: string) {
-    // rawToken에서 email,password 추출
+    // @Headers에서 넘어온 rawToken(Basic $token)에서 email,password 추출
     const { email, password } = this.parserBasicToken(rawToken);
 
     const user = await this.userRepository.findOne({
@@ -54,11 +54,11 @@ export class AuthService {
       throw new BadRequestException('이미 가입한 이메일 입니다.');
     }
 
+    // 환경변수(.env) HASH_ROUNDS 값 저장
+    const hashRounds = this.configService.get<number>('HASH_ROUNDS');
+
     // password 암호화
-    const hash = await bcrypt.hash(
-      password,
-      this.configService.get<number>('HASH_ROUNDS'),
-    );
+    const hash = await bcrypt.hash(password, hashRounds);
 
     await this.userRepository.save({
       email,
@@ -72,9 +72,8 @@ export class AuthService {
     });
   }
 
-  async login(rawToken: string) {
-    const { email, password } = this.parserBasicToken(rawToken);
-
+  async authenticate(email: string, password: string) {
+    // email 인증
     const user = await this.userRepository.findOne({
       where: {
         email,
@@ -85,12 +84,23 @@ export class AuthService {
       throw new BadRequestException('잘못된 로그인 정보입니다.');
     }
 
+    // 비밀번호 인증
     const passOk = bcrypt.compare(password, user.password);
 
     if (!passOk) {
       throw new BadRequestException('잘못된 로그인 정보입니다.');
     }
 
+    return user;
+  }
+
+  async login(rawToken: string) {
+    // @Headers에서 넘어온 rawToken(Basic $token)에서 email,password 추출
+    const { email, password } = this.parserBasicToken(rawToken);
+
+    const user = await this.authenticate(email, password);
+
+    // 환경변수(.env) ACCESS_TOKEN_SECRET,REFRESH_TOKEN_SECRET 저장
     const accessTokenSecret = this.configService.get<string>(
       'ACCESS_TOKEN_SECRET',
     );
@@ -98,7 +108,7 @@ export class AuthService {
       'REFRESH_TOKEN_SECRET',
     );
 
-    // 로그인 정보가 인증이 되면 accessToken,refreshToken 발급
+    // 로그인 정보가 인증이 되면(로그인 성공시) accessToken,refreshToken 발급
     return {
       accessToken: await this.jwtService.signAsync(
         {
