@@ -12,6 +12,8 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { CreateMovieDto } from './create-movie.dto';
+import { PartialType } from '@nestjs/mapped-types';
 
 // class-validator : 검증
 
@@ -40,28 +42,13 @@ import {
 //     }
 // }
 
-export class UpdateMovieDto {
-  @IsNotEmpty()
-  @IsOptional()
-  @IsString()
-  title?: string;
+// Mapped Typed
+// PartialType -> 기존 타입 Optional
+// Pick -> Property 선택 가능
+// Omit -> Pick 반대
+//
 
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsNumber({}, { each: true })
-  @IsOptional()
-  genreIds?: number[];
-
-  @IsNotEmpty()
-  @IsOptional()
-  @IsString()
-  detail?: string;
-
-  @IsNotEmpty()
-  @IsOptional()
-  @IsString()
-  directorId?: number;
-
+export class UpdateMovieDto extends PartialType(CreateMovieDto) {
   // // Custom Validator 사용
   // @IsPasswordValid()
   // test : string;
