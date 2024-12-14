@@ -4,6 +4,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -11,9 +12,10 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  // rawToken = Basic token(emial:password -> encoding)
+  // rawToken = 'Basic $token(emial:password -> encoding)'
   parserBasicToken(rawToken: string) {
     // ['Basic','$token']
     const basicSplit = rawToken.split(' ');
@@ -39,6 +41,7 @@ export class AuthService {
   }
 
   async register(rawToken: string) {
+    // rawToken에서 email,password 추출
     const { email, password } = this.parserBasicToken(rawToken);
 
     const user = await this.userRepository.findOne({
@@ -51,6 +54,7 @@ export class AuthService {
       throw new BadRequestException('이미 가입한 이메일 입니다.');
     }
 
+    // password 암호화
     const hash = await bcrypt.hash(
       password,
       this.configService.get<number>('HASH_ROUNDS'),
@@ -66,5 +70,55 @@ export class AuthService {
         email,
       },
     });
+  }
+
+  async login(rawToken: string) {
+    const { email, password } = this.parserBasicToken(rawToken);
+
+    const user = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('잘못된 로그인 정보입니다.');
+    }
+
+    const passOk = bcrypt.compare(password, user.password);
+
+    if (!passOk) {
+      throw new BadRequestException('잘못된 로그인 정보입니다.');
+    }
+
+    const accessTokenSecret = this.configService.get<string>(
+      'ACCESS_TOKEN_SECRET',
+    );
+    const refreshTokenSecret = this.configService.get<string>(
+      'REFRESH_TOKEN_SECRET',
+    );
+
+    // 로그인 정보가 인증이 되면 accessToken,refreshToken 발급
+    return {
+      accessToken: await this.jwtService.signAsync(
+        {
+          sub: user.id,
+          role: user.role,
+          type: 'access',
+        },
+        { secret: accessTokenSecret, expiresIn: 300 },
+      ),
+      refreshToken: await this.jwtService.signAsync(
+        {
+          sub: user.id,
+          role: user.role,
+          type: 'access',
+        },
+        {
+          secret: refreshTokenSecret,
+          expiresIn: '24h',
+        },
+      ),
+    };
   }
 }

@@ -19,7 +19,8 @@ export class User {
 
   @Column()
   @Exclude({
-    toPlainOnly: true,
+    // toClassOnly : true, // 요청을 받을때
+    toPlainOnly: true, // 응답
   })
   password: string;
 

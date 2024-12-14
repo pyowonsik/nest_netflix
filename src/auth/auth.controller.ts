@@ -7,12 +7,19 @@ import { User } from 'src/user/entities/user.entity';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // 회원가입 : Basic $token
+  // authorization
+  // 회원가입,로그인(access,refresh 발급) : Basic $token
   // accessToken , refreshToken 사용시 : Bearer $accessToken / $refreshToken
 
-  // authorization : Basic $token(emial:password -> encoding)
   @Post('register')
+  // authorization : Basic $token(emial:password -> encoding)
   registerUser(@Headers('authorization') token: string) {
     return this.authService.register(token);
+  }
+
+  @Post('login')
+  // authorization : Basic $token(emial:password -> encoding)
+  loginUser(@Headers('authorization') token: string) {
+    return this.authService.login(token);
   }
 }
