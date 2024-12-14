@@ -2,9 +2,14 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
+  NotFoundException,
   Param,
+  ParseArrayPipe,
+  ParseBoolPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -18,6 +23,8 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entity/movie.entity';
 import { ClassTransformer } from 'class-transformer';
+import { number } from 'joi';
+import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
 
 @Controller('movie')
 // class-transform : 변환
@@ -27,13 +34,13 @@ export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
   @Get()
-  getMovies(@Query('title') title?: string) {
+  getMovies(@Query('title', MovieTitleValidationPipe) title?: string) {
     return this.movieService.findAll(title);
   }
 
   @Get(':id')
-  getMovie(@Param('id') id: string) {
-    return this.movieService.findOne(+id);
+  getMovie(@Param('id', ParseIntPipe) id: number) {
+    return this.movieService.findOne(id);
   }
 
   @Post()
@@ -42,12 +49,15 @@ export class MovieController {
   }
 
   @Put(':id')
-  putMovie(@Param('id') id: string, @Body() body: UpdateMovieDto) {
+  putMovie(
+    @Param('id', ParseIntPipe) id: string,
+    @Body() body: UpdateMovieDto,
+  ) {
     return this.movieService.update(+id, body);
   }
 
   @Delete(':id')
-  deleteMovie(@Param('id') id: string) {
+  deleteMovie(@Param('id', ParseIntPipe) id: string) {
     return this.movieService.delete(+id);
   }
 }
