@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { envVariableKeys } from 'src/common/const/env.const';
 
 @Injectable()
 export class AuthService {
@@ -58,23 +59,28 @@ export class AuthService {
     if (bearer.toLocaleLowerCase() !== 'bearer') {
       throw new BadRequestException('잘못된 형식의 토큰입니다.');
     }
+    try {
+      // (2) 디코딩 + 토큰 검증후 payload 반환
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>(
+          envVariableKeys.refreshTokenSecret,
+        ),
+      });
 
-    // (2) 디코딩 + 토큰 검증후 payload 반환
-    const payload = await this.jwtService.verifyAsync(token, {
-      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
-    });
+      if (isRefresh) {
+        if (payload.type !== 'refresh') {
+          throw new BadRequestException('Refresh 토큰을 입력해주세요.');
+        }
+      } else {
+        if (payload.type !== 'access') {
+          throw new BadRequestException('Access 토큰을 입력해주세요.');
+        }
+      }
 
-    if (isRefresh) {
-      if (payload.type !== 'refresh') {
-        throw new BadRequestException('Refresh 토큰을 입력해주세요.');
-      }
-    } else {
-      if (payload.type !== 'access') {
-        throw new BadRequestException('Access 토큰을 입력해주세요.');
-      }
+      return payload;
+    } catch {
+      throw new BadRequestException('토큰이 만료 되었습니다.');
     }
-
-    return payload;
   }
 
   async register(rawToken: string) {
@@ -92,7 +98,9 @@ export class AuthService {
     }
 
     // 환경변수(.env) HASH_ROUNDS 값 저장
-    const hashRounds = this.configService.get<number>('HASH_ROUNDS');
+    const hashRounds = this.configService.get<number>(
+      envVariableKeys.hashRounds,
+    );
 
     // password 암호화
     const hash = await bcrypt.hash(password, hashRounds);
@@ -135,10 +143,10 @@ export class AuthService {
   async issueToken(user: { id: number; role: Role }, isRefresh: boolean) {
     // 환경변수(.env) ACCESS_TOKEN_SECRET,REFRESH_TOKEN_SECRET 저장
     const accessTokenSecret = this.configService.get<string>(
-      'ACCESS_TOKEN_SECRET',
+      envVariableKeys.accessTokenSecret,
     );
     const refreshTokenSecret = this.configService.get<string>(
-      'REFRESH_TOKEN_SECRET',
+      envVariableKeys.refreshTokenSecret,
     );
 
     return await this.jwtService.signAsync(
