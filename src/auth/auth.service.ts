@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { Role, User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -23,7 +23,12 @@ export class AuthService {
     if (basicSplit.length != 2) {
       throw new BadRequestException('잘못된 형식의 토큰입니다.');
     }
-    const [_, token] = basicSplit;
+
+    const [basic, token] = basicSplit;
+
+    if (basic.toLocaleLowerCase() !== 'basic') {
+      throw new BadRequestException('잘못된 형식의 토큰입니다.');
+    }
 
     // 추출한 토큰을 base64 디코딩 'email:password'
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
@@ -38,6 +43,38 @@ export class AuthService {
 
     const [email, password] = tokenSplit;
     return { email, password };
+  }
+
+  // ${Bearer token} -> Bearer 토큰 분리해서 검증후 payload 반환
+  async parserBeareToken(rawToken: string, isRefresh: boolean) {
+    // (1) Bearer 토큰 분리
+    const basicSplit = rawToken.split(' ');
+
+    if (basicSplit.length != 2) {
+      throw new BadRequestException('잘못된 형식의 토큰입니다.');
+    }
+    const [bearer, token] = basicSplit;
+
+    if (bearer.toLocaleLowerCase() !== 'bearer') {
+      throw new BadRequestException('잘못된 형식의 토큰입니다.');
+    }
+
+    // (2) 디코딩 + 토큰 검증후 payload 반환
+    const payload = await this.jwtService.verifyAsync(token, {
+      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
+    });
+
+    if (isRefresh) {
+      if (payload.type !== 'refresh') {
+        throw new BadRequestException('Refresh 토큰을 입력해주세요.');
+      }
+    } else {
+      if (payload.type !== 'access') {
+        throw new BadRequestException('Access 토큰을 입력해주세요.');
+      }
+    }
+
+    return payload;
   }
 
   async register(rawToken: string) {
@@ -95,7 +132,7 @@ export class AuthService {
   }
 
   // user 정보를 통해 accessToken , refreshToken 발급
-  async issueToken(user: User, isRefresh: boolean) {
+  async issueToken(user: { id: number; role: Role }, isRefresh: boolean) {
     // 환경변수(.env) ACCESS_TOKEN_SECRET,REFRESH_TOKEN_SECRET 저장
     const accessTokenSecret = this.configService.get<string>(
       'ACCESS_TOKEN_SECRET',

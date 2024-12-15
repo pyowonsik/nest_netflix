@@ -53,4 +53,15 @@ export class AuthController {
   async private(@Request() req) {
     return req.user;
   }
+
+  @Post('token/access')
+  async rotateAccessToken(@Headers('authorization') token: string) {
+    // ${Bearer token} -> Bearer 토큰 분리해서 검증후 payload 반환
+    const paylaod = await this.authService.parserBeareToken(token, true);
+
+    // payload(user 정보)를 통해 accessToken 재발급
+    return {
+      accessToken: await this.authService.issueToken(paylaod, false),
+    };
+  }
 }
