@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Header,
   Headers,
   Post,
@@ -11,6 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGaurd } from './strategy/local.strategy';
+import { JwtAuthGuard, JwtStrategy } from './strategy/jwt.stategy';
 
 @Controller('auth')
 export class AuthController {
@@ -32,11 +34,23 @@ export class AuthController {
     return this.authService.login(token);
   }
 
+  // Guard를 통과하면 req 반환
+
   // AuthGuard -> Local Strategy
   // @UseGuards(AuthGuard('codefactory'))
   @UseGuards(LocalAuthGaurd) // string값 오타 방지를 위해 , LocalAuthGaurd 적용
   @Post('login/passport')
-  loginUserPassport(@Request() req) {
+  async loginUserPassport(@Request() req) {
+    // local strategy에서 반환된 user 정보를 통해 accessToken , refreshToken 발급
+    return {
+      accessToken: await this.authService.issueToken(req.user, false),
+      refreshToken: await this.authService.issueToken(req.user, true),
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('private')
+  async private(@Request() req) {
     return req.user;
   }
 }

@@ -94,12 +94,8 @@ export class AuthService {
     return user;
   }
 
-  async login(rawToken: string) {
-    // @Headers에서 넘어온 rawToken(Basic $token)에서 email,password 추출
-    const { email, password } = this.parserBasicToken(rawToken);
-
-    const user = await this.authenticate(email, password);
-
+  // user 정보를 통해 accessToken , refreshToken 발급
+  async issueToken(user: User, isRefresh: boolean) {
     // 환경변수(.env) ACCESS_TOKEN_SECRET,REFRESH_TOKEN_SECRET 저장
     const accessTokenSecret = this.configService.get<string>(
       'ACCESS_TOKEN_SECRET',
@@ -108,27 +104,30 @@ export class AuthService {
       'REFRESH_TOKEN_SECRET',
     );
 
+    return await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        role: user.role,
+        type: isRefresh ? 'refresh' : 'access',
+      },
+      {
+        secret: isRefresh ? refreshTokenSecret : accessTokenSecret,
+        expiresIn: isRefresh ? '24h' : 300,
+      },
+    );
+  }
+
+  async login(rawToken: string) {
+    // @Headers에서 넘어온 rawToken(Basic $token)에서 email,password 추출
+    const { email, password } = this.parserBasicToken(rawToken);
+
+    // user 인증
+    const user = await this.authenticate(email, password);
+
     // 로그인 정보가 인증이 되면(로그인 성공시) accessToken,refreshToken 발급
     return {
-      accessToken: await this.jwtService.signAsync(
-        {
-          sub: user.id,
-          role: user.role,
-          type: 'access',
-        },
-        { secret: accessTokenSecret, expiresIn: 300 },
-      ),
-      refreshToken: await this.jwtService.signAsync(
-        {
-          sub: user.id,
-          role: user.role,
-          type: 'access',
-        },
-        {
-          secret: refreshTokenSecret,
-          expiresIn: '24h',
-        },
-      ),
+      accessToken: await this.issueToken(user, false),
+      refreshToken: await this.issueToken(user, true),
     };
   }
 }
