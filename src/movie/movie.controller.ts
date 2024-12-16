@@ -15,6 +15,7 @@ import {
   Put,
   Query,
   UseInterceptors,
+  Request,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { time } from 'console';
@@ -34,7 +35,11 @@ export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
   @Get()
-  getMovies(@Query('title', MovieTitleValidationPipe) title?: string) {
+  getMovies(
+    @Request() req: any,
+    @Query('title', MovieTitleValidationPipe) title?: string,
+  ) {
+    console.log(req.user);
     return this.movieService.findAll(title);
   }
 

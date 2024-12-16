@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role, User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -47,23 +51,25 @@ export class AuthService {
   }
 
   // ${Bearer token} -> Bearer 토큰 분리해서 검증후 payload 반환
-  async parserBeareToken(rawToken: string, isRefresh: boolean) {
+  async parserBearerToken(rawToken: string, isRefresh: boolean) {
     // (1) Bearer 토큰 분리
     const basicSplit = rawToken.split(' ');
 
     if (basicSplit.length != 2) {
-      throw new BadRequestException('잘못된 형식의 토큰입니다.');
+      throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
     }
     const [bearer, token] = basicSplit;
 
     if (bearer.toLocaleLowerCase() !== 'bearer') {
-      throw new BadRequestException('잘못된 형식의 토큰입니다.');
+      throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
     }
     try {
       // (2) 디코딩 + 토큰 검증후 payload 반환
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>(
-          envVariableKeys.refreshTokenSecret,
+          isRefresh
+            ? envVariableKeys.refreshTokenSecret
+            : envVariableKeys.accessTokenSecret,
         ),
       });
 

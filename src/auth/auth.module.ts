@@ -11,6 +11,6 @@ import { JwtStrategy } from './strategy/jwt.stategy';
   imports: [TypeOrmModule.forFeature([User]), JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],
-  exports: [AuthService], // 다른 모듈에서 AuthService 접근을 위해 .
+  exports: [AuthService, JwtModule], // 다른 모듈에서 AuthService 접근을 위해 .
 })
 export class AuthModule {}
