@@ -8,8 +8,6 @@ import { Role } from 'src/user/entities/user.entity';
 export class RBACGaurd implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
   canActivate(context: ExecutionContext): boolean {
-    console.log('object');
-
     const role = this.reflector.get<Role>(RBAC, context.getHandler());
 
     if (!Object.values(Role).includes(role)) {
