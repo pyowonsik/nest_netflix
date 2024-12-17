@@ -21,6 +21,7 @@ import { envVariableKeys } from './common/const/env.const';
 import { BearerTokenMiddleWear } from './auth/middlewear/bearer-token.middlewear';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/guard/auth.gaurd';
+import { RBACGaurd } from './auth/guard/rbac.gaurd';
 
 @Module({
   imports: [
@@ -64,6 +65,10 @@ import { AuthGuard } from './auth/guard/auth.gaurd';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RBACGaurd,
     },
   ],
 })

@@ -27,6 +27,9 @@ import { ClassTransformer } from 'class-transformer';
 import { number } from 'joi';
 import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
 import { Public } from 'src/auth/decorator/public.decorator';
+import { RBACGaurd } from 'src/auth/guard/rbac.gaurd';
+import { RBAC } from 'src/auth/decorator/rbac.decorator';
+import { Role } from 'src/user/entities/user.entity';
 
 @Controller('movie')
 // class-transform : 변환
@@ -35,22 +38,32 @@ import { Public } from 'src/auth/decorator/public.decorator';
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
+  // Guard를 통과해야 정상 적인 요청 가능
+  // Public() 데코레이터는 무조건 Gurad 통과
+  // RBACGaurd를 통과하려면 @RBAC() 데코레이터를 통해 role을 받아야함.
+  // 현재 AuthGaurd , RBACGaurd는 전역으로 적용 되어 있기 때문에,
+  // @Public() 데코레이터가 있거나 , @RBAC(Role.admin) 데코레이터의
+  // role 값이 조건을 통과해야함.
+
   @Public()
   @Get()
   getMovies(@Query('title', MovieTitleValidationPipe) title?: string) {
     return this.movieService.findAll(title);
   }
 
+  @Public()
   @Get(':id')
   getMovie(@Param('id', ParseIntPipe) id: number) {
     return this.movieService.findOne(id);
   }
 
+  @RBAC(Role.admin)
   @Post()
   postMoive(@Body() body: CreateMovieDto) {
     return this.movieService.create(body);
   }
 
+  @RBAC(Role.admin)
   @Put(':id')
   putMovie(
     @Param('id', ParseIntPipe) id: string,
@@ -59,6 +72,7 @@ export class MovieController {
     return this.movieService.update(+id, body);
   }
 
+  @RBAC(Role.admin)
   @Delete(':id')
   deleteMovie(@Param('id', ParseIntPipe) id: string) {
     return this.movieService.delete(+id);
