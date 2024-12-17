@@ -45,6 +45,8 @@ export class MovieController {
   // @Public() 데코레이터가 있거나 , @RBAC(Role.admin) 데코레이터의
   // role 값이 조건을 통과해야함.
 
+  // 사실상 @(데코레이터)는 Gurad를 통과시키는 수단.
+
   @Public()
   @Get()
   getMovies(@Query('title', MovieTitleValidationPipe) title?: string) {

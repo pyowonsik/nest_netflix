@@ -13,7 +13,7 @@ export class RBACGaurd implements CanActivate {
     if (!Object.values(Role).includes(role)) {
       return true;
     }
-
+    // middle wear 뚫고 들어온 request -> payload (id,role,type)
     const request = context.switchToHttp().getRequest();
 
     const user = request.user;
