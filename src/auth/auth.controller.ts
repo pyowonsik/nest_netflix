@@ -13,6 +13,7 @@ import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGaurd } from './strategy/local.strategy';
 import { JwtAuthGuard, JwtStrategy } from './strategy/jwt.stategy';
+import { Public } from './decorator/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -22,15 +23,17 @@ export class AuthController {
   // 회원가입,로그인(access,refresh 발급) : Basic $token
   // accessToken , refreshToken 사용시 : Bearer $accessToken / $refreshToken
 
+  @Public()
   @Post('register')
-  // authorization : Basic $token(emial:password -> encoding)
   registerUser(@Headers('authorization') token: string) {
     return this.authService.register(token);
   }
 
+  @Public()
   @Post('login')
-  // authorization : Basic $token(emial:password -> encoding)
-  loginUser(@Headers('authorization') token: string) {
+  loginUser(
+    @Headers('authorization') token: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.login(token);
   }
 

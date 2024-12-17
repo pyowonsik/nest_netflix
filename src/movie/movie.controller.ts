@@ -26,6 +26,7 @@ import { Movie } from './entity/movie.entity';
 import { ClassTransformer } from 'class-transformer';
 import { number } from 'joi';
 import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @Controller('movie')
 // class-transform : 변환
@@ -34,12 +35,9 @@ import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
+  @Public()
   @Get()
-  getMovies(
-    @Request() req: any,
-    @Query('title', MovieTitleValidationPipe) title?: string,
-  ) {
-    console.log(req.user);
+  getMovies(@Query('title', MovieTitleValidationPipe) title?: string) {
     return this.movieService.findAll(title);
   }
 

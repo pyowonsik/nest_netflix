@@ -23,20 +23,23 @@ export class BearerTokenMiddleWear implements NestMiddleware {
       return;
     }
 
-    // AuthService의 parserBearerToken 작업을
-    // MiddleWear를 사용하여 어플리케이션의 모든 요청시
-    // (parserBearerToken : Bearer 토큰 분리후 디코딩 작업후
-    // payload를 반환) -> 이유는 accessToken이 유효한 요청에
-    // 의해서만 응답을 주기 위함
-    const token = this.validateBearerToken(authHeader);
-
-    const decodedPayload = this.jwtService.decode(token);
-
-    if (decodedPayload.type !== 'refresh' && decodedPayload.type !== 'access') {
-      throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
-    }
-
     try {
+      // AuthService의 parserBearerToken 작업을
+      // MiddleWear를 사용하여 어플리케이션의 모든 요청시
+      // (parserBearerToken : Bearer 토큰 분리후 디코딩 작업후
+      // payload를 반환) -> 이유는 accessToken이 유효한 요청에
+      // 의해서만 응답을 주기 위함
+      const token = this.validateBearerToken(authHeader);
+
+      const decodedPayload = this.jwtService.decode(token);
+
+      if (
+        decodedPayload.type !== 'refresh' &&
+        decodedPayload.type !== 'access'
+      ) {
+        throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
+      }
+
       const secretKey =
         decodedPayload.type === 'refresh'
           ? envVariableKeys.refreshTokenSecret
@@ -62,7 +65,9 @@ export class BearerTokenMiddleWear implements NestMiddleware {
       req.user = payload;
       next();
     } catch (e) {
-      throw new BadRequestException('토큰이 만료 되었습니다.');
+      // auth guard에서 한번더 처리하기 때문에 next();
+      // throw new BadRequestException('토큰이 만료 되었습니다.');
+      next();
     }
   }
 
