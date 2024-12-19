@@ -30,6 +30,7 @@ import { Public } from 'src/auth/decorator/public.decorator';
 import { RBACGaurd } from 'src/auth/guard/rbac.gaurd';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entities/user.entity';
+import { GetMovieDto } from './dto/get-movie.dto';
 
 @Controller('movie')
 // class-transform : 변환
@@ -49,8 +50,8 @@ export class MovieController {
 
   @Public()
   @Get()
-  getMovies(@Query('title', MovieTitleValidationPipe) title?: string) {
-    return this.movieService.findAll(title);
+  getMovies(@Query() dto: GetMovieDto) {
+    return this.movieService.findAll(dto);
   }
 
   @Public()

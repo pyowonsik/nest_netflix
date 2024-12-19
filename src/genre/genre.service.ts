@@ -24,9 +24,15 @@ export class GenreService {
     });
     return genre;
   }
-  create(createGenreDto: CreateGenreDto) {
-    const genre = this.genreRepository.save(createGenreDto);
-    return genre;
+  async create(createGenreDto: CreateGenreDto) {
+    const genre = await this.genreRepository.findOne({
+      where: { name: createGenreDto.name },
+    });
+
+    if (genre) {
+      throw new NotFoundException('이미 존재하는 장르입니다.');
+    }
+    return await this.genreRepository.save(createGenreDto);
   }
 
   async update(id: number, updateGenreDto: UpdateGenreDto) {
