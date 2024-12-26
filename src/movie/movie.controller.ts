@@ -31,6 +31,8 @@ import { RBACGaurd } from 'src/auth/guard/rbac.gaurd';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entities/user.entity';
 import { GetMovieDto } from './dto/get-movie.dto';
+import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
+import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 
 @Controller('movie')
 // class-transform : 변환
@@ -50,6 +52,7 @@ export class MovieController {
 
   @Public()
   @Get()
+  // @UseInterceptors(CacheInterceptor)
   getMovies(@Query() dto: GetMovieDto) {
     return this.movieService.findAll(dto);
   }
@@ -62,8 +65,9 @@ export class MovieController {
 
   @RBAC(Role.admin)
   @Post()
-  postMoive(@Body() body: CreateMovieDto) {
-    return this.movieService.create(body);
+  @UseInterceptors(TransactionInterceptor)
+  postMoive(@Body() body: CreateMovieDto, @Request() req) {
+    return this.movieService.create(body, req.queryRunner);
   }
 
   @RBAC(Role.admin)
