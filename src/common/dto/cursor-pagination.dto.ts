@@ -1,13 +1,16 @@
-import { IsIn, IsInt, IsOptional } from 'class-validator';
+import { IsArray, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CursorPaginaitionDto {
-  @IsInt()
+  @IsString()
   @IsOptional()
-  id: number;
+  // id_52 , likeCount_20
+  cursor: string;
 
-  @IsIn(['DESC', 'ASC'])
-  @IsOptional()
-  order: 'DESC' | 'ASC' = 'DESC';
+  @IsArray()
+  @IsString({ each: true })
+  // @IsOptional()
+  // id_DESC , likeCount_ASC
+  order: string[];
 
   @IsInt()
   @IsOptional()

@@ -38,10 +38,21 @@ export class MovieService {
       qb.where('movie.title LIKE :title', { title: `%${title}%` });
     }
 
+    // if (take && page) {
     // this.commonService.applyPagePaginationParamsToQb(qb, dto);
-    this.commonService.applyCursorPaginationParamsToQb(qb, dto);
+    // }
 
-    return await qb.getManyAndCount();
+    const { nextCursor } =
+      await this.commonService.applyCursorPaginationParamsToQb(qb, dto);
+
+    const [data, count] = await qb.getManyAndCount();
+
+    // 기존 반환값에 cursor를 넣어줌
+    return {
+      data,
+      nextCursor,
+      count,
+    };
   }
 
   async findOne(id: number) {
