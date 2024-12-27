@@ -19,10 +19,13 @@ import { AuthModule } from './auth/auth.module';
 import { User } from './user/entities/user.entity';
 import { envVariableKeys } from './common/const/env.const';
 import { BearerTokenMiddleWear } from './auth/middlewear/bearer-token.middlewear';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/guard/auth.gaurd';
 import { RBACGaurd } from './auth/guard/rbac.gaurd';
 import { ResponseTimeInterceptor } from './common/interceptor/response-time.interceptor';
+import { ForbiddenExceptionFilter } from './common/filter/forbidden.filter';
+import { QueryFailedError } from 'typeorm';
+import { QueryFailedExceptionFilter } from './common/filter/query-failed.filter';
 
 @Module({
   imports: [
@@ -74,6 +77,14 @@ import { ResponseTimeInterceptor } from './common/interceptor/response-time.inte
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseTimeInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ForbiddenExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: QueryFailedExceptionFilter,
     },
   ],
 })
