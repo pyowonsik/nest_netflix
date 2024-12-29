@@ -134,10 +134,10 @@ export class MovieService {
 
     const movieDetailId = movieDetail.identifiers[0].id;
 
+    // movie 생성시, temp폴더의 movieFile을 movie폴더로 이동 시킨다.
     const movieFolder = join('public', 'movie');
     const tempFolder = join('public', 'temp');
 
-    // movie 생성시, temp폴더의 movieFile을 movie폴더로 이동 시킨다.
     await rename(
       join(process.cwd(), tempFolder, createMovieDto.movieFileName),
       join(process.cwd(), movieFolder, createMovieDto.movieFileName),
