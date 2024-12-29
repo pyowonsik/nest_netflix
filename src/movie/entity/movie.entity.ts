@@ -17,6 +17,7 @@ import { BaseTable } from '../../common/entity/base-table.entity';
 import { MovieDetail } from './movie-detail.entity';
 import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
+import { Transform, Type } from 'class-transformer';
 
 // // @Exclude() : 조회시 해당 propeety 숨김
 // // @Expose() : 조회시 해당 property 노출
@@ -75,5 +76,8 @@ export class Movie extends BaseTable {
     default: 0,
   })
   likeCount: number;
-  //
+
+  @Column()
+  @Transform(({ value }) => `http://localhost:3000/${value}`)
+  movieFilePath: string;
 }

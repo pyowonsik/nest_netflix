@@ -16,6 +16,9 @@ import {
   Query,
   UseInterceptors,
   Request,
+  UploadedFile,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { time } from 'console';
@@ -33,6 +36,11 @@ import { Role } from 'src/user/entities/user.entity';
 import { GetMovieDto } from './dto/get-movie.dto';
 import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 
 @Controller('movie')
 // class-transform : 변환

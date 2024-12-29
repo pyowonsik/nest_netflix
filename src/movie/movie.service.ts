@@ -13,6 +13,9 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
 import { GetMovieDto } from './dto/get-movie.dto';
 import { CommonService } from 'src/common/common.service';
+import { join } from 'path';
+import { json } from 'stream/consumers';
+import { rename } from 'fs/promises';
 
 @Injectable()
 export class MovieService {
@@ -131,6 +134,15 @@ export class MovieService {
 
     const movieDetailId = movieDetail.identifiers[0].id;
 
+    const movieFolder = join('public', 'movie');
+    const tempFolder = join('public', 'temp');
+
+    // movie 생성시, temp폴더의 movieFile을 movie폴더로 이동 시킨다.
+    await rename(
+      join(process.cwd(), tempFolder, createMovieDto.movieFileName),
+      join(process.cwd(), movieFolder, createMovieDto.movieFileName),
+    );
+
     // (1)에서 반환 받은 movieDetailId를 이용하여 movie 테이블에서
     // movieDetail,director를 movie에 저장
     const movie = await qr.manager
@@ -143,6 +155,8 @@ export class MovieService {
           id: movieDetailId,
         },
         director,
+        // movieFile을 이동 시켜주면서 movie 테이블에도 저장한다.
+        movieFilePath: join(movieFolder, createMovieDto.movieFileName),
       })
       .execute();
 

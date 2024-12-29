@@ -26,6 +26,8 @@ import { ResponseTimeInterceptor } from './common/interceptor/response-time.inte
 import { ForbiddenExceptionFilter } from './common/filter/forbidden.filter';
 import { QueryFailedError } from 'typeorm';
 import { QueryFailedExceptionFilter } from './common/filter/query-failed.filter';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -58,6 +60,11 @@ import { QueryFailedExceptionFilter } from './common/filter/query-failed.filter'
         synchronize: true,
       }),
       inject: [ConfigService],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      // public 요청시 반드시 /public/ 붙여서 요청해야함. -> movie/uuid~~ 로 요청하게 되면 url이 겹치기 때문에 public/movie/uuid ~~ 로 요청하도록 하기 위함
+      serveRoot: '/public/',
     }),
     MovieModule,
     DirectorModule,
