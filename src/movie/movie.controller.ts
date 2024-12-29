@@ -41,6 +41,9 @@ import {
   FileInterceptor,
   FilesInterceptor,
 } from '@nestjs/platform-express';
+import { UserId } from 'src/user/decorator/user-id.decorator';
+import { QueryRunner as QR } from 'typeorm';
+import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 
 @Controller('movie')
 // class-transform : 변환
@@ -73,9 +76,13 @@ export class MovieController {
 
   @RBAC(Role.admin)
   @Post()
-  @UseInterceptors(TransactionInterceptor)
-  postMoive(@Body() body: CreateMovieDto, @Request() req) {
-    return this.movieService.create(body, req.queryRunner);
+  @UseInterceptors(TransactionInterceptor) // queryRunner 반환 인터셉터
+  postMoive(
+    @Body() body: CreateMovieDto,
+    @UserId() userId: number, // userId 반환 데코레이터
+    @QueryRunner() queryRunner: QR,
+  ) {
+    return this.movieService.create(body, userId, queryRunner);
   }
 
   @RBAC(Role.admin)

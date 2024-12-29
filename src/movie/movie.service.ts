@@ -67,6 +67,7 @@ export class MovieService {
       .createQueryBuilder('movie')
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres')
+      .leftJoinAndSelect('movie.creator', 'creator')
       .leftJoinAndSelect('movie.detail', 'detail')
       .where('movie.id = :id', { id })
       .getOne();
@@ -84,7 +85,11 @@ export class MovieService {
     return movie;
   }
 
-  async create(createMovieDto: CreateMovieDto, qr: QueryRunner) {
+  async create(
+    createMovieDto: CreateMovieDto,
+    userId: number,
+    qr: QueryRunner,
+  ) {
     const director = await qr.manager.findOne(Director, {
       where: {
         id: createMovieDto.directorId,
@@ -138,11 +143,6 @@ export class MovieService {
     const movieFolder = join('public', 'movie');
     const tempFolder = join('public', 'temp');
 
-    await rename(
-      join(process.cwd(), tempFolder, createMovieDto.movieFileName),
-      join(process.cwd(), movieFolder, createMovieDto.movieFileName),
-    );
-
     // (1)에서 반환 받은 movieDetailId를 이용하여 movie 테이블에서
     // movieDetail,director를 movie에 저장
     const movie = await qr.manager
@@ -155,12 +155,20 @@ export class MovieService {
           id: movieDetailId,
         },
         director,
+        creator: {
+          id: userId,
+        },
         // movieFile을 이동 시켜주면서 movie 테이블에도 저장한다.
         movieFilePath: join(movieFolder, createMovieDto.movieFileName),
       })
       .execute();
 
     const movieId = movie.identifiers[0].id;
+
+    await rename(
+      join(process.cwd(), tempFolder, createMovieDto.movieFileName),
+      join(process.cwd(), movieFolder, createMovieDto.movieFileName),
+    );
 
     // (2) one to many 관계 일 경우 .relation()을 통해 관계를 만들어줘야함.
     await qr.manager
