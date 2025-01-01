@@ -1,5 +1,7 @@
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NestMiddleware,
   UnauthorizedException,
@@ -14,6 +16,8 @@ export class BearerTokenMiddleWear implements NestMiddleware {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
@@ -30,6 +34,19 @@ export class BearerTokenMiddleWear implements NestMiddleware {
       // payload를 반환) -> 이유는 accessToken이 유효한 요청에
       // 의해서만 응답을 주기 위함
       const token = this.validateBearerToken(authHeader);
+
+      const tokenKey = `TOKEN_${token}`;
+
+      const cachedPayload = await this.cacheManager.get(tokenKey);
+
+      // 첫 검증이 완료되어 cacheManager에 payload가 저장 되어 있다면
+      // middle wear next();
+      if (cachedPayload) {
+        // console.log('---- cache run ----');
+        // console.log(cachedPayload);
+        req.user = cachedPayload;
+        return next();
+      }
 
       const decodedPayload = this.jwtService.decode(token);
 
@@ -49,6 +66,20 @@ export class BearerTokenMiddleWear implements NestMiddleware {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>(secretKey),
       });
+
+      // payload가 처음 검증이 되면, payload가 만료되는 시간까지
+      // cacheManager에 payload set
+      const expiryDate = +new Date(payload['exp'] * 1000);
+      const now = +Date.now();
+
+      const differenceInSeconds = (expiryDate - now) / 1000;
+
+      await this.cacheManager.set(
+        tokenKey,
+        payload,
+        Math.max((differenceInSeconds - 30) * 1000, 1),
+      );
+      //
 
       const isRefresh = payload.type === 'refresh';
 
