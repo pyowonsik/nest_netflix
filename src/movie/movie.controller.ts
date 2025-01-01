@@ -34,7 +34,11 @@ import { RBACGaurd } from 'src/auth/guard/rbac.gaurd';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entities/user.entity';
 import { GetMovieDto } from './dto/get-movie.dto';
-import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
+import {
+  CacheKey,
+  CacheTTL,
+  CacheInterceptor as CI,
+} from '@nestjs/cache-manager';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import {
   FileFieldsInterceptor,
@@ -60,6 +64,14 @@ export class MovieController {
   // role 값이 조건을 통과해야함.
 
   // 사실상 @(데코레이터)는 Gurad를 통과시키는 수단.
+
+  @Get('/recent')
+  @UseInterceptors(CI)
+  @CacheKey('MOVIE_RECENT')
+  @CacheTTL(3000)
+  getMovieRecent() {
+    return this.movieService.findRecent();
+  }
 
   @Public()
   @Get()

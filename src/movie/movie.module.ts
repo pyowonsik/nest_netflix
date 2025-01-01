@@ -13,10 +13,14 @@ import { join } from 'path';
 import { v4 } from 'uuid';
 import { MovieUserLike } from './entity/movie-user-like.entity';
 import { User } from 'src/user/entities/user.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     CommonModule,
+    CacheModule.register({
+      ttl: 10000,
+    }),
     // // 파일 저장소 지정
     // // process.cwd : 현재 프로젝트의 최상단 경로
     // MulterModule.register({
