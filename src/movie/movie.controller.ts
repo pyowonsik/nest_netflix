@@ -64,8 +64,8 @@ export class MovieController {
   @Public()
   @Get()
   // @UseInterceptors(CacheInterceptor)
-  getMovies(@Query() dto: GetMovieDto) {
-    return this.movieService.findAll(dto);
+  getMovies(@Query() dto: GetMovieDto, @UserId() userId?: number) {
+    return this.movieService.findAll(dto, userId);
   }
 
   @Public()
@@ -74,13 +74,15 @@ export class MovieController {
     return this.movieService.findOne(id);
   }
 
+  // middleWear - Guard - interceptor
+
   @RBAC(Role.admin)
   @Post()
   @UseInterceptors(TransactionInterceptor) // queryRunner 반환 인터셉터
   postMoive(
     @Body() body: CreateMovieDto,
     @UserId() userId: number, // userId 반환 데코레이터
-    @QueryRunner() queryRunner: QR,
+    @QueryRunner() queryRunner: QR, // queryRunner 반환 데코레이터
   ) {
     return this.movieService.create(body, userId, queryRunner);
   }
@@ -98,5 +100,21 @@ export class MovieController {
   @Delete(':id')
   deleteMovie(@Param('id', ParseIntPipe) id: string) {
     return this.movieService.delete(+id);
+  }
+
+  @Post(':id/like')
+  createMovieLike(
+    @Param('id', ParseIntPipe) movieId: number,
+    @UserId() userId: number,
+  ) {
+    return this.movieService.toggleMovieLike(movieId, userId, true);
+  }
+
+  @Post(':id/dislike')
+  createMovieDisLike(
+    @Param('id', ParseIntPipe) movieId: number,
+    @UserId() userId: number,
+  ) {
+    return this.movieService.toggleMovieLike(movieId, userId, false);
   }
 }

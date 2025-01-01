@@ -11,6 +11,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join } from 'path';
 import { v4 } from 'uuid';
+import { MovieUserLike } from './entity/movie-user-like.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Module({
   imports: [
@@ -35,7 +37,14 @@ import { v4 } from 'uuid';
     //     },
     //   }),
     // }),
-    TypeOrmModule.forFeature([Movie, MovieDetail, Director, Genre]),
+    TypeOrmModule.forFeature([
+      Movie,
+      MovieDetail,
+      Director,
+      Genre,
+      User,
+      MovieUserLike,
+    ]),
   ], // typeorm movie repository
   controllers: [MovieController],
   providers: [MovieService],

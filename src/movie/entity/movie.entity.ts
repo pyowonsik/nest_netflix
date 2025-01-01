@@ -8,6 +8,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -19,6 +20,7 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
 import { Transform, Type } from 'class-transformer';
 import { User } from 'src/user/entities/user.entity';
+import { MovieUserLike } from './movie-user-like.entity';
 
 // // @Exclude() : 조회시 해당 propeety 숨김
 // // @Expose() : 조회시 해당 property 노출
@@ -84,4 +86,7 @@ export class Movie extends BaseTable {
   @Column()
   @Transform(({ value }) => `http://localhost:3000/${value}`)
   movieFilePath: string;
+
+  @OneToMany(() => MovieUserLike, (mul) => mul.movie)
+  likedUsers: MovieUserLike[];
 }
