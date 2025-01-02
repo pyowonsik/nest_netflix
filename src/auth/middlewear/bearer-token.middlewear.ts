@@ -27,36 +27,41 @@ export class BearerTokenMiddleWear implements NestMiddleware {
       return;
     }
 
+    // AuthService의 parserBearerToken 작업을
+    // MiddleWear를 사용하여 어플리케이션의 모든 요청시
+    // (parserBearerToken : Bearer 토큰 분리후 디코딩 작업후
+    // payload를 반환) -> 이유는 accessToken이 유효한 요청에
+    // 의해서만 응답을 주기 위함
+    const token = this.validateBearerToken(authHeader);
+
+    // 토큰이 유효한지 검증하기전 사용하려는 토큰이 block된 토큰이라면 throw
+    const blockedToken = await this.cacheManager.get(`BLOCK_${token}`);
+
+    if (blockedToken) {
+      throw new UnauthorizedException('차단된 토큰입니다.');
+    }
+    //
+
+    const tokenKey = `TOKEN_${token}`;
+
+    const cachedPayload = await this.cacheManager.get(tokenKey);
+
+    // 첫 검증이 완료되어 cacheManager에 payload가 저장 되어 있다면
+    // middle wear next();
+    if (cachedPayload) {
+      // console.log('---- cache run ----');
+      // console.log(cachedPayload);
+      req.user = cachedPayload;
+      return next();
+    }
+
+    const decodedPayload = this.jwtService.decode(token);
+
+    if (decodedPayload.type !== 'refresh' && decodedPayload.type !== 'access') {
+      throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
+    }
+
     try {
-      // AuthService의 parserBearerToken 작업을
-      // MiddleWear를 사용하여 어플리케이션의 모든 요청시
-      // (parserBearerToken : Bearer 토큰 분리후 디코딩 작업후
-      // payload를 반환) -> 이유는 accessToken이 유효한 요청에
-      // 의해서만 응답을 주기 위함
-      const token = this.validateBearerToken(authHeader);
-
-      const tokenKey = `TOKEN_${token}`;
-
-      const cachedPayload = await this.cacheManager.get(tokenKey);
-
-      // 첫 검증이 완료되어 cacheManager에 payload가 저장 되어 있다면
-      // middle wear next();
-      if (cachedPayload) {
-        // console.log('---- cache run ----');
-        // console.log(cachedPayload);
-        req.user = cachedPayload;
-        return next();
-      }
-
-      const decodedPayload = this.jwtService.decode(token);
-
-      if (
-        decodedPayload.type !== 'refresh' &&
-        decodedPayload.type !== 'access'
-      ) {
-        throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
-      }
-
       const secretKey =
         decodedPayload.type === 'refresh'
           ? envVariableKeys.refreshTokenSecret

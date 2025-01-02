@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { envVariableKeys } from 'src/common/const/env.const';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +20,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   // rawToken = 'Basic $token(emial:password -> encoding)'
@@ -180,5 +184,25 @@ export class AuthService {
       accessToken: await this.issueToken(user, false),
       refreshToken: await this.issueToken(user, true),
     };
+  }
+
+  async tokenBlock(token: string) {
+    const payload = this.jwtService.decode(token);
+
+    // payload가 처음 검증이 되면, payload가 만료되는 시간까지
+    // cacheManager에 payload set
+    const expiryDate = +new Date(payload['exp'] * 1000);
+    const now = +Date.now();
+
+    const differenceInSeconds = (expiryDate - now) / 1000;
+
+    // block 하려는 토큰을 cacheManager에 저장
+    await this.cacheManager.set(
+      `BLOCK_${token}`,
+      payload,
+      Math.max(differenceInSeconds * 1000, 1),
+    );
+    //
+    return true;
   }
 }

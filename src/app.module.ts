@@ -30,6 +30,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MovieUserLike } from './movie/entity/movie-user-like.entity';
 import { CacheModule } from '@nestjs/cache-manager';
+import { TrottleInterceptor } from './common/interceptor/throttle.interceptor';
 
 @Module({
   imports: [
@@ -72,6 +73,17 @@ import { CacheModule } from '@nestjs/cache-manager';
       ttl: 0,
       isGlobal: true,
     }),
+    // CacheModule.registerAsync({
+    //   isGlobal: true,
+    //   useFactory: async () => ({
+    //     store: redisStore as unknown as string, // Redis Store 설정
+    //     host: 'localhost',
+    //     port: 6379,
+    //     ttl: 0,
+    //     // username: configService.get<string>('REDIS_USERNAME'), // Redis 사용자 (선택)
+    //     // password: configService.get<string>('REDIS_PASSWORD'), // Redis 비밀번호 (선택)
+    //   }),
+    // }),
     MovieModule,
     DirectorModule,
     GenreModule,
@@ -91,13 +103,17 @@ import { CacheModule } from '@nestjs/cache-manager';
       provide: APP_INTERCEPTOR,
       useClass: ResponseTimeInterceptor,
     },
-    {
-      provide: APP_FILTER,
-      useClass: ForbiddenExceptionFilter,
-    },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: ForbiddenExceptionFilter,
+    // },
     {
       provide: APP_FILTER,
       useClass: QueryFailedExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TrottleInterceptor,
     },
   ],
 })

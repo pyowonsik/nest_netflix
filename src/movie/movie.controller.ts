@@ -48,6 +48,7 @@ import {
 import { UserId } from 'src/user/decorator/user-id.decorator';
 import { QueryRunner as QR } from 'typeorm';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
+import { Throttle } from 'src/common/decorator/throttle.decorator';
 
 @Controller('movie')
 // class-transform : 변환
@@ -75,6 +76,12 @@ export class MovieController {
 
   @Public()
   @Get()
+  @Throttle({
+    count: 5,
+    unit: 'minute',
+  })
+  // ThrottleInterceptor를 적용하려면 Trottle 데코레이터 필요
+  //  -> Throttle 데코레이터가 없다면 인터셉텨를 통과 시키기때문
   // @UseInterceptors(CacheInterceptor)
   getMovies(@Query() dto: GetMovieDto, @UserId() userId?: number) {
     return this.movieService.findAll(dto, userId);
@@ -89,6 +96,8 @@ export class MovieController {
   // middleWear - Guard - interceptor
 
   @RBAC(Role.admin)
+  // RBACGaurd(권한처리)를 적용하려면 RBAC 데코레이터 필요
+  //  -> RBAC 데코레이터가 없다면 인터셉텨를 통과 시키기때문
   @Post()
   @UseInterceptors(TransactionInterceptor) // queryRunner 반환 인터셉터
   postMoive(

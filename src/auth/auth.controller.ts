@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Header,
@@ -35,6 +36,11 @@ export class AuthController {
     @Headers('authorization') token: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.login(token);
+  }
+
+  @Post('token/block')
+  blockToken(@Body('token') token: string) {
+    return this.authService.tokenBlock(token);
   }
 
   // Guard를 통과하면 req 반환
