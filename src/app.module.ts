@@ -31,6 +31,7 @@ import { join } from 'path';
 import { MovieUserLike } from './movie/entity/movie-user-like.entity';
 import { CacheModule } from '@nestjs/cache-manager';
 import { TrottleInterceptor } from './common/interceptor/throttle.interceptor';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { TrottleInterceptor } from './common/interceptor/throttle.interceptor';
     //     // password: configService.get<string>('REDIS_PASSWORD'), // Redis 비밀번호 (선택)
     //   }),
     // }),
+    ScheduleModule.forRoot(),
     MovieModule,
     DirectorModule,
     GenreModule,

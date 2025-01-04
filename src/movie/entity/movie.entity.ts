@@ -83,6 +83,11 @@ export class Movie extends BaseTable {
   })
   likeCount: number;
 
+  @Column({
+    default: 0,
+  })
+  dislikeCount: number;
+
   @Column()
   @Transform(({ value }) => `http://localhost:3000/${value}`)
   movieFilePath: string;
