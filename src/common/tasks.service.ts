@@ -1,22 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { readdir, unlink } from 'fs/promises';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { join, parse } from 'path';
+import { DefaultLogger } from 'src/movie/entity/default.logger';
 import { Movie } from 'src/movie/entity/movie.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class TasksService {
+  // private readonly logger = new Logger(TasksService.name); // nestjs logger
   constructor(
     @InjectRepository(Movie)
     private readonly movieRepository: Repository<Movie>,
+    // private readonly logger: DefaultLogger,  // nestjs custom logger
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService, // winston logger
   ) {}
 
   // Cron을 사용해 로그 찍기
-  // @Cron('* * * * * *')
+  @Cron('*/5 * * * * *')
   logEverySeconds() {
-    console.log('1초마다 실행');
+    this.logger.fatal('fatal 레벨 로그', null, TasksService.name);
+    this.logger.error('error 레벨 로그', null, TasksService.name);
+    this.logger.warn('warn 레벨 로그', TasksService.name);
+    this.logger.log('log 레벨 로그', TasksService.name);
+    this.logger.debug('debug 레벨 로그', TasksService.name);
+    this.logger.verbose('verbose 레벨 로그', TasksService.name);
   }
 
   // Cron을 사용해 잉여 파일 삭제
