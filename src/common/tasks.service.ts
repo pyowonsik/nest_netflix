@@ -20,7 +20,7 @@ export class TasksService {
   ) {}
 
   // Cron을 사용해 로그 찍기
-  @Cron('*/5 * * * * *')
+  // @Cron('*/5 * * * * *')
   logEverySeconds() {
     this.logger.fatal('fatal 레벨 로그', null, TasksService.name);
     this.logger.error('error 레벨 로그', null, TasksService.name);

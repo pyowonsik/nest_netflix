@@ -10,7 +10,7 @@ export class CursorPaginaitionDto {
   @IsString({ each: true })
   // @IsOptional()
   // id_DESC , likeCount_ASC
-  order: string[];
+  order: string[] = ['id_DESC'];
 
   @IsInt()
   @IsOptional()

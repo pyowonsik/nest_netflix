@@ -19,6 +19,8 @@ import {
   UploadedFile,
   UploadedFiles,
   BadRequestException,
+  Version,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { time } from 'console';
@@ -50,7 +52,22 @@ import { QueryRunner as QR } from 'typeorm';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { Throttle } from 'src/common/decorator/throttle.decorator';
 
-@Controller('movie')
+@Controller({
+  path: 'movie',
+  version: '2',
+})
+export class MovieControllerV2 {
+  @Get('')
+  getMovies() {
+    return [];
+  }
+}
+
+@Controller({
+  path: 'movie',
+  // version: '1',
+  // version: VERSION_NEUTRAL,
+})
 // class-transform : 변환
 // class-transformer 사용 -> ( @Expose , @Exclude , @Transform )
 @UseInterceptors(ClassSerializerInterceptor)
@@ -83,6 +100,7 @@ export class MovieController {
   // ThrottleInterceptor를 적용하려면 Trottle 데코레이터 필요
   //  -> Throttle 데코레이터가 없다면 인터셉텨를 통과 시키기때문
   // @UseInterceptors(CacheInterceptor)
+  // @Version('5')
   getMovies(@Query() dto: GetMovieDto, @UserId() userId?: number) {
     return this.movieService.findAll(dto, userId);
   }
