@@ -1,3 +1,4 @@
+import { ApiHideProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 
@@ -7,13 +8,16 @@ import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 export class BaseTable {
   @CreateDateColumn()
   @Exclude() // 프론트엔드에서 필요없는 값 숨김 처리
+  @ApiHideProperty()
   createdAt: Date;
 
   @UpdateDateColumn()
   @Exclude() // 프론트엔드에서 필요없는 값 숨김 처리
+  @ApiHideProperty()
   updatedAt: Date;
 
   @VersionColumn()
   @Exclude() // 프론트엔드에서 필요없는 값 숨김 처리
+  @ApiHideProperty()
   version: number;
 }

@@ -51,23 +51,16 @@ import { UserId } from 'src/user/decorator/user-id.decorator';
 import { QueryRunner as QR } from 'typeorm';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { Throttle } from 'src/common/decorator/throttle.decorator';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-@Controller({
-  path: 'movie',
-  version: '2',
-})
-export class MovieControllerV2 {
-  @Get('')
-  getMovies() {
-    return [];
-  }
-}
-
-@Controller({
-  path: 'movie',
-  // version: '1',
-  // version: VERSION_NEUTRAL,
-})
+@Controller('movie')
+@ApiTags('movie')
+@ApiBearerAuth()
 // class-transform : 변환
 // class-transformer 사용 -> ( @Expose , @Exclude , @Transform )
 @UseInterceptors(ClassSerializerInterceptor)
@@ -83,14 +76,6 @@ export class MovieController {
 
   // 사실상 @(데코레이터)는 Gurad를 통과시키는 수단.
 
-  @Get('/recent')
-  @UseInterceptors(CI)
-  @CacheKey('MOVIE_RECENT')
-  @CacheTTL(3000)
-  getMovieRecent() {
-    return this.movieService.findRecent();
-  }
-
   @Public()
   @Get()
   @Throttle({
@@ -101,6 +86,17 @@ export class MovieController {
   //  -> Throttle 데코레이터가 없다면 인터셉텨를 통과 시키기때문
   // @UseInterceptors(CacheInterceptor)
   // @Version('5')
+  @ApiOperation({
+    description: '[movie]를 Pagination하는 API',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Pagination 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Pagination 데이터 잘못 입력',
+  })
   getMovies(@Query() dto: GetMovieDto, @UserId() userId?: number) {
     return this.movieService.findAll(dto, userId);
   }
@@ -109,6 +105,14 @@ export class MovieController {
   @Get(':id')
   getMovie(@Param('id', ParseIntPipe) id: number) {
     return this.movieService.findOne(id);
+  }
+
+  @Get('/recent')
+  @UseInterceptors(CI)
+  @CacheKey('MOVIE_RECENT')
+  @CacheTTL(3000)
+  getMovieRecent() {
+    return this.movieService.findRecent();
   }
 
   // middleWear - Guard - interceptor

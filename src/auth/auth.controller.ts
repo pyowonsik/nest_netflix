@@ -15,8 +15,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGaurd } from './strategy/local.strategy';
 import { JwtAuthGuard, JwtStrategy } from './strategy/jwt.stategy';
 import { Public } from './decorator/public.decorator';
+import { ApiBasicAuth, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Authorization } from './decorator/authorization.decorator';
 
 @Controller('auth')
+@ApiTags('auth')
+@ApiBearerAuth()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -26,14 +30,19 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  registerUser(@Headers('authorization') token: string) {
+  @ApiBasicAuth()
+  registerUser(@Authorization() token: string) {
     return this.authService.register(token);
   }
 
   @Public()
   @Post('login')
+  @ApiBasicAuth()
   loginUser(
-    @Headers('authorization') token: string,
+    @Authorization() token: string,
+    // Swagger에서 인식하지 못하도록 custom decorator 사용.
+    // 해당 데코레이터를 사용하면 자동으로 authorization을 header로 넣어줌
+    // @Headers('authorization') token: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.login(token);
   }
