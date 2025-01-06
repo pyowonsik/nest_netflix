@@ -41,7 +41,7 @@ export class AuthController {
   loginUser(
     @Authorization() token: string,
     // Swagger에서 인식하지 못하도록 custom decorator 사용.
-    // 해당 데코레이터를 사용하면 자동으로 authorization을 header로 넣어줌
+    // 해당 데코레이터를 사용하면 자동으로 authorization을 header로 넣어줌 -> 스웨거에서 authorization 입력을 할 필요 없음
     // @Headers('authorization') token: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.login(token);
