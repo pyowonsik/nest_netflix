@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { envVariableKeys } from 'src/common/const/env.const';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly userService: UserService,
   ) {}
 
   // rawToken = 'Basic $token(emial:password -> encoding)'
@@ -97,34 +99,7 @@ export class AuthService {
     // @Headers에서 넘어온 rawToken(Basic $token)에서 email,password 추출
     const { email, password } = this.parserBasicToken(rawToken);
 
-    const user = await this.userRepository.findOne({
-      where: {
-        email,
-      },
-    });
-
-    if (user) {
-      throw new BadRequestException('이미 가입한 이메일 입니다.');
-    }
-
-    // 환경변수(.env) HASH_ROUNDS 값 저장
-    const hashRounds = this.configService.get<number>(
-      envVariableKeys.hashRounds,
-    );
-
-    // password 암호화
-    const hash = await bcrypt.hash(password, hashRounds);
-
-    await this.userRepository.save({
-      email,
-      password: hash,
-    });
-
-    return await this.userRepository.find({
-      where: {
-        email,
-      },
-    });
+    return this.userService.create({ email, password });
   }
 
   async authenticate(email: string, password: string) {

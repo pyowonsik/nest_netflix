@@ -1,10 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { NotFoundError } from 'rxjs';
+import * as bcrypt from 'bcrypt';
+import { envVariableKeys } from 'src/common/const/env.const';
+import { ConfigService } from '@nestjs/config';
 
 // Access , Refresh 토큰 발급시 Basic -> username:password
 // Access , Refresh 사용시 Bearer    -> @accessToken/refreshToken
@@ -14,6 +21,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly configService: ConfigService,
   ) {}
 
   async findAll() {
@@ -35,11 +43,42 @@ export class UserService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    return await this.userRepository.save(createUserDto);
+    const { email, password } = createUserDto;
+
+    const user = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (user) {
+      throw new BadRequestException('이미 가입한 이메일 입니다.');
+    }
+
+    // 환경변수(.env) HASH_ROUNDS 값 저장
+    const hashRounds = this.configService.get<number>(
+      envVariableKeys.hashRounds,
+    );
+
+    // password 암호화
+    const hash = await bcrypt.hash(password, hashRounds);
+
+    await this.userRepository.save({
+      email,
+      password: hash,
+    });
+
+    return await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = this.userRepository.findOne({
+    const { password } = updateUserDto;
+
+    const user = await this.userRepository.findOne({
       where: {
         id,
       },
@@ -49,7 +88,15 @@ export class UserService {
       throw new NotFoundException('존재하지 않는 유저의 ID 입니다.');
     }
 
-    await this.userRepository.update({ id }, updateUserDto);
+    const hash = await bcrypt.hash(
+      password,
+      this.configService.get<number>(envVariableKeys.hashRounds),
+    );
+
+    await this.userRepository.update(
+      { id },
+      { ...updateUserDto, password: hash },
+    );
 
     const newUser = this.userRepository.findOne({
       where: {
@@ -60,8 +107,8 @@ export class UserService {
     return newUser;
   }
 
-  remove(id: number) {
-    const user = this.userRepository.findOne({
+  async remove(id: number) {
+    const user = await this.userRepository.findOne({
       where: {
         id,
       },
@@ -71,7 +118,7 @@ export class UserService {
       throw new NotFoundException('존재하지 않는 유저의 ID 입니다.');
     }
 
-    this.userRepository.delete(id);
+    await this.userRepository.delete(id);
 
     return id;
   }
