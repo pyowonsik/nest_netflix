@@ -8,5 +8,6 @@ import { Director } from './entity/director.entity';
   imports: [TypeOrmModule.forFeature([Director])], // typeorm director repository 의존성
   controllers: [DirectorController],
   providers: [DirectorService],
+  exports: [DirectorService],
 })
 export class DirectorModule {}
