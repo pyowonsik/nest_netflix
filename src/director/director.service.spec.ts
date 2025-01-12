@@ -138,7 +138,7 @@ describe('DirectorService', () => {
       expect(result).toEqual(updatedDirector);
     });
 
-    it('should throw a NotFoundException if user to update is not found', async () => {
+    it('should throw a NotFoundException if director to update is not found', async () => {
       jest.spyOn(mockDirectorRepository, 'findOne').mockResolvedValue(null);
 
       const updateDirectorDto: UpdateDirectorDto = {
