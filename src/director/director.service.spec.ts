@@ -18,7 +18,7 @@ const mockDirectorRepository = {
 
 describe('DirectorService', () => {
   let directorService: DirectorService;
-  // let directorRepository: Repository<Director>;
+  let directorRepository: Repository<Director>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,6 +34,9 @@ describe('DirectorService', () => {
     }).compile();
 
     directorService = module.get<DirectorService>(DirectorService);
+    directorRepository = module.get<Repository<Director>>(
+      getRepositoryToken(Director),
+    );
   });
 
   afterEach(() => {

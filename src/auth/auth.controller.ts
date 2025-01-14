@@ -43,7 +43,7 @@ export class AuthController {
     // Swagger에서 인식하지 못하도록 custom decorator 사용.
     // 해당 데코레이터를 사용하면 자동으로 authorization을 header로 넣어줌 -> 스웨거에서 authorization 입력을 할 필요 없음
     // @Headers('authorization') token: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ) {
     return this.authService.login(token);
   }
 
@@ -60,27 +60,18 @@ export class AuthController {
 
   // AuthGuard -> Local Strategy
   // @UseGuards(AuthGuard('codefactory'))
-  @UseGuards(LocalAuthGaurd) // string값 오타 방지를 위해 , LocalAuthGaurd 적용
-  @Post('login/passport')
-  async loginUserPassport(@Request() req) {
-    // local strategy에서 반환된 user 정보를 통해 accessToken , refreshToken 발급
-    return {
-      accessToken: await this.authService.issueToken(req.user, false),
-      refreshToken: await this.authService.issueToken(req.user, true),
-    };
-  }
 
   // JwtStrategy의 경우, accessToken을 검증하여 유효한 경우 해당 payload를 반환한다.
   // Bearer $token 으로 요청을 보내면 자동으로 토큰값 분리해서 검증 가능.
-  @UseGuards(JwtAuthGuard)
-  @Get('private')
-  async private(@Request() req) {
-    return req.user;
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Get('private')
+  // async private(@Request() req) {
+  //   return req.user;
+  // }
 
   @Post('token/access')
   async rotateAccessToken(
-    @Request() req: any,
+    @Request() req,
     // @Headers('authorization') token: string,
   ) {
     // refresh token을 사용하여 -> access token을 재발급 받기 위한 로직
@@ -95,6 +86,16 @@ export class AuthController {
 
     // BearerTokenMiddleWear를 통해 req.user를 반환받아 user정보로 payload를 대체하여 issueToken
     return {
+      accessToken: await this.authService.issueToken(req.user, false),
+    };
+  }
+
+  @UseGuards(LocalAuthGaurd) // string값 오타 방지를 위해 , LocalAuthGaurd 적용
+  @Post('login/passport')
+  async loginUserPassport(@Request() req) {
+    // local strategy에서 반환된 user 정보를 통해 accessToken , refreshToken 발급
+    return {
+      refreshToken: await this.authService.issueToken(req.user, true),
       accessToken: await this.authService.issueToken(req.user, false),
     };
   }

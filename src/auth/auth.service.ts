@@ -62,12 +62,12 @@ export class AuthService {
     const basicSplit = rawToken.split(' ');
 
     if (basicSplit.length != 2) {
-      throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
+      throw new BadRequestException('잘못된 형식의 토큰입니다.');
     }
     const [bearer, token] = basicSplit;
 
     if (bearer.toLocaleLowerCase() !== 'bearer') {
-      throw new UnauthorizedException('잘못된 형식의 토큰입니다.');
+      throw new BadRequestException('잘못된 형식의 토큰입니다.');
     }
     try {
       // (2) 디코딩 + 토큰 검증후 payload 반환
@@ -91,7 +91,7 @@ export class AuthService {
 
       return payload;
     } catch {
-      throw new BadRequestException('토큰이 만료 되었습니다.');
+      throw new UnauthorizedException('토큰이 만료 되었습니다.');
     }
   }
 
