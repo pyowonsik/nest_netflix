@@ -60,18 +60,37 @@ export class MovieService {
       take: 10,
     });
 
-    this.cacheManager.set('MOVIE_RECENT', data);
+    await this.cacheManager.set('MOVIE_RECENT', data);
 
     return data;
+  }
+
+  // istanbul ignore next -> 테스트 하지말고 넘어가라
+  // typeorm 메서드를 테스트할 필요 없음
+
+  /* istanbul ignore next */
+  async getMovies() {
+    return this.movieRepository
+      .createQueryBuilder('movie')
+      .leftJoinAndSelect('movie.director', 'director')
+      .leftJoinAndSelect('movie.genres', 'genres');
+  }
+
+  /* istanbul ignore next */
+  async getLikedMovies(movieIds: number[], userId: number) {
+    return this.movieUserLikeRepository
+      .createQueryBuilder('mul')
+      .leftJoinAndSelect('mul.movie', 'movie')
+      .leftJoinAndSelect('mul.user', 'user')
+      .where('movie.id IN(:...movieIds)', { movieIds })
+      .where('user.id = :userId', { userId })
+      .getMany();
   }
 
   async findAll(dto: GetMovieDto, userId: number) {
     const { title } = dto;
 
-    const qb = await this.movieRepository
-      .createQueryBuilder('movie')
-      .leftJoinAndSelect('movie.director', 'director')
-      .leftJoinAndSelect('movie.genres', 'genres');
+    const qb = await this.getMovies();
 
     if (title) {
       qb.where('movie.title LIKE :title', { title: `%${title}%` });
@@ -91,15 +110,7 @@ export class MovieService {
 
       // likeMovie = 페이지네이션을 마친 data에서 좋아요 또는 싫어요를 한 데이터
       const likedMovie =
-        movieIds.length < 1
-          ? []
-          : await this.movieUserLikeRepository
-              .createQueryBuilder('mul')
-              .leftJoinAndSelect('mul.movie', 'movie')
-              .leftJoinAndSelect('mul.user', 'user')
-              .where('movie.id IN(:...movieIds)', { movieIds })
-              .where('user.id = :userId', { userId })
-              .getMany();
+        movieIds.length < 1 ? [] : await this.getLikedMovies(movieIds, userId);
 
       const likeMovieMap = likedMovie.reduce(
         (acc, next) => ({
