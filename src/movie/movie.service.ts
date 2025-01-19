@@ -408,7 +408,7 @@ export class MovieService {
 
       // movie update
       // await this.movieRepository.update({ id }, movieUpdateFields);
-      await this.updateMovie(qr, updateMovieDto, id);
+      await this.updateMovie(qr, movieUpdateFields, id);
 
       // movie detail update
       if (detail) {

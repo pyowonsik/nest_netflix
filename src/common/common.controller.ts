@@ -16,7 +16,7 @@ export class CommonController {
   // 확실하게 저장을 하게 된다면 선업로드된 temp 폴더에서 movie 폴더로 이동만 하면 되도록 하는 방식.
   @Post('video')
   @UseInterceptors(
-    FileInterceptor('movie', {
+    FileInterceptor('video', {
       // 파일 사이즈 제한
       limits: {
         fileSize: 20000000,

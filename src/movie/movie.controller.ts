@@ -101,18 +101,21 @@ export class MovieController {
     return this.movieService.findAll(dto, userId);
   }
 
+  // /movie/recent?sdfjiv
+  // /movie/id에 걸릴수 있으므로 위에 선언
+  @Get('recent')
+  @UseInterceptors(CI)
+  @CacheKey('getMoviesRecent')
+  @CacheTTL(1000)
+  getMoviesRecent() {
+    // console.log('getMovieRecent');
+    return this.movieService.findRecent();
+  }
+
   @Public()
   @Get(':id')
   getMovie(@Param('id', ParseIntPipe) id: number) {
     return this.movieService.findOne(id);
-  }
-
-  @Get('/recent')
-  @UseInterceptors(CI)
-  @CacheKey('MOVIE_RECENT')
-  @CacheTTL(3000)
-  getMovieRecent() {
-    return this.movieService.findRecent();
   }
 
   // middleWear - Guard - interceptor

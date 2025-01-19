@@ -10,7 +10,7 @@ export class CursorPaginaitionDto {
     example: 'eyJ2YWx1ZXMiOnsiaWQiOjF9LCJvcmRlciI6WyJpZF9ERVNDIl19',
   })
   // id_52 , likeCount_20
-  cursor: string;
+  cursor?: string;
 
   @IsArray()
   @IsString({ each: true })

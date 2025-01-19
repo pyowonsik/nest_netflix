@@ -40,8 +40,9 @@ import * as winston from 'winston';
     // DB 정보 환경 변수 적용
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'test' ? 'test.env' : '.env',
       validationSchema: Joi.object({
-        ENV: Joi.string().valid('dev', 'prod').required(),
+        ENV: Joi.string().valid('test', 'dev', 'prod').required(),
         DB_TYPE: Joi.string().valid('postgres').required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.number().required(),

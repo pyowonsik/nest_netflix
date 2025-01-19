@@ -10,5 +10,5 @@ export class GetMovieDto extends CursorPaginaitionDto {
     description: '영화의 제목',
     example: '프로메테우스',
   })
-  title: string;
+  title?: string;
 }
