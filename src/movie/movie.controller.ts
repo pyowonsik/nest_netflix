@@ -124,16 +124,16 @@ export class MovieController {
   @UseInterceptors(TransactionInterceptor) // queryRunner 반환 인터셉터
   postMoive(
     @Body() body: CreateMovieDto,
-    @UserId() userId: number, // userId 반환 데코레이터
     @QueryRunner() queryRunner: QR, // queryRunner 반환 데코레이터
+    @UserId() userId: number, // userId 반환 데코레이터
   ) {
     return this.movieService.create(body, userId, queryRunner);
   }
 
   @RBAC(Role.admin)
-  @Put(':id')
-  putMovie(
-    @Param('id', ParseIntPipe) id: string,
+  @Patch(':id')
+  patchMovie(
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateMovieDto,
   ) {
     return this.movieService.update(+id, body);
@@ -141,7 +141,7 @@ export class MovieController {
 
   @RBAC(Role.admin)
   @Delete(':id')
-  deleteMovie(@Param('id', ParseIntPipe) id: string) {
+  deleteMovie(@Param('id', ParseIntPipe) id: number) {
     return this.movieService.delete(+id);
   }
 

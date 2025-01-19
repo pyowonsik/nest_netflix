@@ -115,7 +115,9 @@
       "middlewear.ts",
       "stategy.ts",
       "pipe.ts",
-      "common/*"
+      "common/*",
+      "logger.ts",
+      "main.ts"
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
