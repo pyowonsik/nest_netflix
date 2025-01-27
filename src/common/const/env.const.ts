@@ -13,6 +13,11 @@ const awsAccessKeyId = 'AWS_ACCESS_KEY_ID';
 const awsRegion = 'AWS_REGION';
 const bucketName = 'BUCKET_NAME';
 
+const awsSecretAccessKey = 'AWS_SECRET_ACCESS_KEY';
+const awsAccessKeyId = 'AWS_ACCESS_KEY_ID';
+const awsRegion = 'AWS_REGION';
+const bucketName = 'BUCKET_NAME';
+
 export const envVariableKeys = {
   env,
   dbType,

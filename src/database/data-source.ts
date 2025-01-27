@@ -14,14 +14,4 @@ export default new DataSource({
   logging: false,
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/database/migrations/*.js'],
-  ...(process.env.ENV === 'prod' && {
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  }),
 });
-
-// yarn add typeorm @nestjs/typeorm
-// migration 파일 genrate : yarn typeorm migration:generate ./src/database/migrations/init -d ./dist/database/data-source.js
-// yarn build : dist 적용 (migration 데이터를 dist에서 적용 하기 때문)
-// migreation run(revert) : yarn typeorm migration:run(revert) -d ./dist/database/data-source.js

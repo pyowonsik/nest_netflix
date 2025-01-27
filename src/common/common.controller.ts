@@ -45,7 +45,7 @@ export class CommonController {
   }
 
   @Post('presigned-url')
-  async createPresignedUrl() {
+  async cratePresignedUrl() {
     return {
       url: await this.commonService.createPresignedUrl(),
     };

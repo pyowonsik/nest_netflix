@@ -23,8 +23,8 @@ import { User } from 'src/user/entities/user.entity';
 import { MovieUserLike } from './entity/movie-user-like.entity';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TasksService } from 'src/common/tasks.service';
+import { ConfigService } from '@nestjs/config';
 import { envVariableKeys } from 'src/common/const/env.const';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MovieService {
