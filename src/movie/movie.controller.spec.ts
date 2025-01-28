@@ -43,7 +43,7 @@ describe('MovieController', () => {
       const userId = 1;
       const movies = [{ id: 1 }, { id: 2 }];
 
-      await movieController.getMovieRecent();
+      await movieController.getMoviesRecent();
 
       expect(movieService.findRecent).toHaveBeenCalled();
     });
