@@ -96,10 +96,6 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      - name: Set Environment Variable for Test
-        run: |
-          export NODE_OPTIONS=--experimental-crypto
-
       - name: Run Test
         run: npm run test
 
