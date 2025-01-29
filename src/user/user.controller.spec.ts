@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { User } from './entities/user.entity';
+import { User } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { use } from 'passport';
 // 의존성 mock

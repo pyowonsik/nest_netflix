@@ -8,8 +8,8 @@ import { DataSource } from 'typeorm';
 import { MovieDetail } from './entity/movie-detail.entity';
 import { MovieUserLike } from './entity/movie-user-like.entity';
 import { AuthService } from 'src/auth/auth.service';
-import { Role, User } from 'src/user/entities/user.entity';
-import { Genre } from 'src/genre/entities/genre.entity';
+import { Role, User } from 'src/user/entity/user.entity';
+import { Genre } from 'src/genre/entity/genre.entity';
 
 describe('MovieController (e2e)', () => {
   let app: INestApplication;

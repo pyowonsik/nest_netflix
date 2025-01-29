@@ -34,7 +34,7 @@ import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBACGaurd } from 'src/auth/guard/rbac.gaurd';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
-import { Role } from 'src/user/entities/user.entity';
+import { Role } from 'src/user/entity/user.entity';
 import { GetMovieDto } from './dto/get-movie.dto';
 import {
   CacheKey,

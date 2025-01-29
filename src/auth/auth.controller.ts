@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { User } from 'src/user/entity/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGaurd } from './strategy/local.strategy';
 import { JwtAuthGuard, JwtStrategy } from './strategy/jwt.stategy';

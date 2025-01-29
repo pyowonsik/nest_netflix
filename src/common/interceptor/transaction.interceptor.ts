@@ -19,10 +19,10 @@ export class TransactionInterceptor implements NestInterceptor {
 
     const qr = this.dataSource.createQueryRunner();
 
-    req.queryRunner = qr;
-
     await qr.connect();
     await qr.startTransaction();
+
+    req.queryRunner = qr;
 
     return next.handle().pipe(
       catchError(async (e) => {
