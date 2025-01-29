@@ -96,14 +96,14 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      # - name: Run Test
-      #   run: npm run test
+      - name: Run Test
+        run: npm run test
 
-      # - name: Install Typeorm
-      #   run: npm i -g typeorm
+      - name: Install Typeorm
+        run: npm i -g typeorm
 
-      # - name: Run Migration
-      #   run: typeorm migration:run -d ./dist/database/data-source.js
+      - name: Run Migration
+        run: typeorm migration:run -d ./dist/database/data-source.js
 
       - name: Zip Artfact For Deployment
         run: zip -r deploy.zip .
